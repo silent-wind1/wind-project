@@ -1,6 +1,11 @@
 spring:
   application:
     name: wind-ai-code-back
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/yefeng_ai_code
+    username: root
+    password: 031214t+
 server:
   port: 2411
   servlet:
