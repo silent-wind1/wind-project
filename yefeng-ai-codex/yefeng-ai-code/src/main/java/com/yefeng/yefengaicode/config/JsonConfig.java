@@ -34,11 +34,11 @@ public class JsonConfig {
         log.info("jacksonObjectMapper 进行Long转换成String");
         ObjectMapper objectMapper = builder.createXmlMapper(false).build();
         SimpleModule simpleModule = new SimpleModule();
-        //Long类型转String类型
+        // Long类型转String类型
         simpleModule.addSerializer(Long.class, ToStringSerializer.instance);
-        //long类型转String类型
+        // long类型转String类型
         simpleModule.addSerializer(Long.TYPE, ToStringSerializer.instance);
-        //日期格式处理
+        // 日期格式处理
         simpleModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         // 处理LocalDate
         simpleModule.addSerializer(LocalDate.class, new LocalDateSerializer(DateTimeFormatter.ofPattern("yyyy-MM-dd")));

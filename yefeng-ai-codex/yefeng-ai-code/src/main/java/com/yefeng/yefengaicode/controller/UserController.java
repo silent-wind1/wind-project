@@ -78,9 +78,14 @@ public class UserController {
      */
     @PostMapping("/delete")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Boolean> deleteUser(@RequestBody DeleteRequest deleteRequest) {
+    public BaseResponse<Boolean> deleteUser(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        // 判断是否为管理员，管理员不允许删除自己
+        User loginUser = userService.getLoginUser(request);
+        if (deleteRequest.getId().equals(loginUser.getId())) {
+            throw new BusinessException(ErrorCode.NOT_Delete_CURRENT_USER);
         }
         boolean b = userService.removeById(deleteRequest.getId());
         return ResultUtils.success(b);
