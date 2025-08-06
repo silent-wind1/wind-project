@@ -29,6 +29,12 @@ declare namespace API {
     message?: string
   }
 
+  type BaseResponseString = {
+    code?: number
+    data?: string
+    message?: string
+  }
+
   type BaseResponseUser = {
     code?: number
     data?: User
@@ -55,6 +61,10 @@ declare namespace API {
 
   type healthParams = {
     name: string
+  }
+
+  type LdsUploadFileRequest = {
+    relateId: string
   }
 
   type LoginUserVO = {
