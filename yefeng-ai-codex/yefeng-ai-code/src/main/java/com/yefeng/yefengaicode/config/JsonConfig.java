@@ -6,9 +6,11 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
+import com.mybatisflex.core.paginate.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.jackson.JsonComponent;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 import java.time.LocalDate;
@@ -30,6 +32,7 @@ public class JsonConfig {
      * @return ObjectMapper
      */
     @Bean
+    @Primary
     public ObjectMapper jacksonObjectMapper(Jackson2ObjectMapperBuilder builder) {
         log.info("jacksonObjectMapper 进行Long转换成String");
         ObjectMapper objectMapper = builder.createXmlMapper(false).build();
@@ -37,7 +40,7 @@ public class JsonConfig {
         // Long类型转String类型
         simpleModule.addSerializer(Long.class, ToStringSerializer.instance);
         // long类型转String类型
-        simpleModule.addSerializer(Long.TYPE, ToStringSerializer.instance);
+//        simpleModule.addSerializer(Long.TYPE, ToStringSerializer.instance);
         // 日期格式处理
         simpleModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         // 处理LocalDate
