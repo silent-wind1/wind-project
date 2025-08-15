@@ -21,6 +21,7 @@ public class AiCodeGeneratorServiceFactory {
 
     /**
      * 创建AI代码生成服务
+     *
      * @return Ai代码生成服务
      */
 //    @Bean
@@ -30,6 +31,7 @@ public class AiCodeGeneratorServiceFactory {
 
     /**
      * 创建 Stream流 AI代码生成服务
+     *
      * @return Ai代码生成服务
      */
     @Bean

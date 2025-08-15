@@ -3,7 +3,7 @@ package com.yefeng.yefengaicode.exception;
 import lombok.Getter;
 
 @Getter
-public enum FileCode{
+public enum FileCode {
 
     FILE_IS_BLANK(50100, "文件不能为空");
 

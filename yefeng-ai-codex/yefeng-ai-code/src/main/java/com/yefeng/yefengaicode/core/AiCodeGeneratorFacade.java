@@ -3,8 +3,8 @@ package com.yefeng.yefengaicode.core;
 import com.yefeng.yefengaicode.ai.AiCodeGeneratorService;
 import com.yefeng.yefengaicode.ai.model.HtmlCodeResult;
 import com.yefeng.yefengaicode.ai.model.MultiFileCodeResult;
-import com.yefeng.yefengaicode.core.saver.CodeFileSaverExecutor;
 import com.yefeng.yefengaicode.core.parser.CodeParserExecutor;
+import com.yefeng.yefengaicode.core.saver.CodeFileSaverExecutor;
 import com.yefeng.yefengaicode.exception.BusinessException;
 import com.yefeng.yefengaicode.exception.ErrorCode;
 import com.yefeng.yefengaicode.model.enums.CodeGenTypeEnum;
@@ -26,7 +26,8 @@ public class AiCodeGeneratorFacade {
 
     /**
      * 统一入口：根据类型生成并保存代码
-     * @param userMessage 用户提示词
+     *
+     * @param userMessage     用户提示词
      * @param codeGenTypeEnum 生成类型
      * @return 保存的目录
      */
@@ -46,7 +47,8 @@ public class AiCodeGeneratorFacade {
 
     /**
      * 统一入口：根据类型生成并保存代码（流式）
-     * @param userMessage 用户提示词
+     *
+     * @param userMessage     用户提示词
      * @param codeGenTypeEnum 生成类型
      * @return 保存的目录
      */
@@ -66,6 +68,7 @@ public class AiCodeGeneratorFacade {
 
     /**
      * 根据类型生成并保存代码
+     *
      * @param userMessage 用户提示词
      * @return 保存的目录
      */
@@ -97,6 +100,7 @@ public class AiCodeGeneratorFacade {
 
     /**
      * 生成HTML代码流式
+     *
      * @param userMessage 用户提示词
      * @return HTML代码
      */
@@ -118,6 +122,7 @@ public class AiCodeGeneratorFacade {
 
     /**
      * 生成多个文件并保存代码
+     *
      * @param userMessage 用户提示词
      * @return 文件目录
      */
@@ -128,6 +133,7 @@ public class AiCodeGeneratorFacade {
 
     /**
      * 生成并保存HTML代码
+     *
      * @param userMessage 用户提示词
      * @return 文件目录
      */

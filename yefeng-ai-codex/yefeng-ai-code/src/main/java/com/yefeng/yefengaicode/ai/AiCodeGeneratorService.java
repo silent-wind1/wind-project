@@ -26,7 +26,7 @@ public interface AiCodeGeneratorService {
      * @return 生成的代码结果
      */
     @SystemMessage(fromResource = "prompt/codegen-multi-file-system-prompt.txt")
-    Flux<String>  generateMultiFileCodeStream(String userMessage);
+    Flux<String> generateMultiFileCodeStream(String userMessage);
 
 
     /**

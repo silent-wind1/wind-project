@@ -17,7 +17,7 @@ public class FileException extends RuntimeException {
         this.code = code;
     }
 
-    public FileException(FileCode fileCode){
+    public FileException(FileCode fileCode) {
         super(fileCode.getMessage());
         this.code = fileCode.getCode();
     }
