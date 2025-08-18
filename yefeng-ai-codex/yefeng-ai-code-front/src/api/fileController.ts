@@ -6,7 +6,7 @@ import request from '@/request'
 export async function uploadFile(
   file: File,
   fileRequest: API.LdsUploadFileRequest, // 添加元数据参数
-  options?: { [key: string]: any }
+  options?: { [key: string]: string }
 ) {
   const formData = new FormData();
 
@@ -14,8 +14,8 @@ export async function uploadFile(
   formData.append('file', file);
 
   // 添加元数据字段
-  Object.keys(fileRequest).forEach(key => {
-    formData.append(key, fileRequest[key]);
+  Object.keys(fileRequest).forEach((key: string) => {
+    formData.append(key, (fileRequest as Record<string, any>)[key]);
   });
 
   return request<API.BaseResponseString>('/file/upload', {

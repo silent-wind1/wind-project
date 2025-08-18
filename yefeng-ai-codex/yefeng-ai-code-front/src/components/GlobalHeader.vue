@@ -52,8 +52,8 @@ import { computed, h, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { type MenuProps, message } from 'ant-design-vue'
 import { useLoginUserStore } from '@/stores/loginUser.ts'
-import { LogoutOutlined } from '@ant-design/icons-vue'
 import { userLogout } from '@/api/userController.ts'
+import { LogoutOutlined, HomeOutlined } from '@ant-design/icons-vue'
 
 // 获取登录用户信息
 const loginUserStore = useLoginUserStore()
@@ -70,13 +70,19 @@ router.afterEach((to) => {
 const originItems = [
   {
     key: '/',
+    icon: () => h(HomeOutlined),
     label: '首页',
     title: '首页',
   },
   {
     key: '/admin/userManage',
     label: '用户管理',
-    title: '用户管理'
+    title: '用户管理',
+  },
+  {
+    key: '/admin/appManage',
+    label: '应用管理',
+    title: '应用管理',
   },
   {
     key: '/about',
@@ -127,7 +133,7 @@ const doLogout = async () => {
     message.success('退出登录成功')
     await router.push('/user/login')
   } else {
-    message.error('退出登录失败' + res.data.code)
+    message.error('退出登录失败，' + res.data.message)
   }
 }
 </script>

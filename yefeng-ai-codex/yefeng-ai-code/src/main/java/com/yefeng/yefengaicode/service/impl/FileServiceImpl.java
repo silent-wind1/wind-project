@@ -22,8 +22,6 @@ import static com.yefeng.yefengaicode.exception.FileCode.FILE_IS_BLANK;
 @Slf4j
 @Service
 public class FileServiceImpl implements FileService {
-    private final String profile = "D:/img/";
-    private final String prefix = "yefeng-";
 
     /**
      * 文件上传
@@ -37,9 +35,18 @@ public class FileServiceImpl implements FileService {
         if (file.isEmpty()) {
             throw new FileException(FILE_IS_BLANK);
         }
+        String prefix = "yefeng-";
         String filename = prefix + IdUtil.simpleUUID();
+        String profile = "img/";
         String filepath = profile + filename + "." + FileUtil.getSuffix(file.getOriginalFilename());
         try {
+            File filePath = new File("D:/" +filepath);
+            if (!filePath.getParentFile().exists()) {
+                boolean mkdir = filePath.getParentFile().mkdirs();
+                if (!mkdir) {
+                    throw new FileException("文件上传失败", 500);
+                }
+            }
             file.transferTo(new File(filepath));
         } catch (Exception e) {
             throw new FileException(e);

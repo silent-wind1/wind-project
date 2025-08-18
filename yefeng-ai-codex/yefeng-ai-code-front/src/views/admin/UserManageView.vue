@@ -71,28 +71,28 @@
           <a-input v-model:value="editFormState.userAccount" />
         </a-form-item>
         <a-form-item label="头像">
-            <a-upload
-              v-model:value="editFormState.userAvatar"
-              name="avatar"
-              list-type="picture-card"
-              class="avatar-uploader"
-              :show-upload-list="false"
-              :before-upload="beforeUpload"
-              :customRequest="customUpload"
-              @change="handleUploadChange"
-            >
-              <img
-                v-if="editFormState.userAvatar"
-                :src="editFormState.userAvatar"
-                alt="avatar"
-                class="avatar-preview"
-              />
-              <div v-else>
-                <loading-outlined v-if="avatarLoading"></loading-outlined>
-                <plus-outlined v-else></plus-outlined>
-                <div class="ant-upload-text"></div>
-              </div>
-            </a-upload>
+          <a-upload
+            v-model:value="editFormState.userAvatar"
+            name="avatar"
+            list-type="picture-card"
+            class="avatar-uploader"
+            :show-upload-list="false"
+            :before-upload="beforeUpload"
+            :customRequest="customUpload"
+            @change="handleUploadChange"
+          >
+            <img
+              v-if="editFormState.userAvatar"
+              :src="editFormState.userAvatar"
+              alt="avatar"
+              class="avatar-preview"
+            />
+            <div v-else>
+              <loading-outlined v-if="avatarLoading"></loading-outlined>
+              <plus-outlined v-else></plus-outlined>
+              <div class="ant-upload-text"></div>
+            </div>
+          </a-upload>
         </a-form-item>
         <a-form-item label="用户名" required>
           <a-input v-model:value="editFormState.userName" placeholder="请输入用户名" />
@@ -192,7 +192,7 @@ const pagination = computed(() => {
 })
 
 // 表格变化处理
-const doTableChange = (page: any) => {
+const doTableChange = (page: { current: number; pageSize: number }) => {
   searchParams.pageNum = page.current
   searchParams.pageSize = page.pageSize
   fetchData()
@@ -205,7 +205,7 @@ const doSearch = () => {
 }
 
 // 删除数据
-const doDelete = async (id: string) => {
+const doDelete = async (id: number) => {
   if (!id) {
     return
   }
@@ -268,23 +268,23 @@ const handleEditCancel = () => {
 const avatarLoading = ref(false)
 
 // 头像上传前处理
-const beforeUpload = (file: any) => {
+const beforeUpload = (file: File) => {
   const isImage = file.type.startsWith('image/')
   if (!isImage) {
     message.error('只能上传图片文件！')
   }
-  const isLt2M = file.size / 1024 / 1024 < 2
+  const isLt2M = file.size / 1024 / 1024 < 12
   if (!isLt2M) {
-    message.error('图片大小不能超过 2MB!')
+    message.error('图片大小不能超过 12MB!')
   }
   return isImage && isLt2M
 }
 
 // 添加自定义上传方法
-const customUpload = async (options: any) => {
+const customUpload = async (options: { file: File; onSuccess:  (url: string | undefined) => void; onError: (error: unknown) => void }) => {
   const { file, onSuccess, onError } = options
   try {
-    const res = await uploadFile(file, {})
+    const res = await uploadFile(file, { relateId: '' })
     if (res.data.code === 0) {
       // 假设后端返回的URL字段是 data
       const url = res.data.data
