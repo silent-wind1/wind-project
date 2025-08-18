@@ -4,7 +4,9 @@ import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.service.IService;
 import com.yefeng.yefengaicode.model.dto.app.AppQueryRequest;
 import com.yefeng.yefengaicode.model.entity.App;
+import com.yefeng.yefengaicode.model.entity.User;
 import com.yefeng.yefengaicode.model.vo.AppVO;
+import reactor.core.publisher.Flux;
 
 import java.util.List;
 
@@ -20,4 +22,8 @@ public interface AppService extends IService<App> {
     QueryWrapper getQueryWrapper(AppQueryRequest appQueryRequest);
 
     List<AppVO> getAppVOList(List<App> appList);
+
+    Flux<String> doToGenCode(Long appId, String message, User loginUser);
+
+    String deployApp(Long appId, User loginUser);
 }
