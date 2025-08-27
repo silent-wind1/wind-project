@@ -48,69 +48,45 @@ public class AppController {
     @Resource
     private UserService userService;
 
-    /**
-     * 保存应用。
-     *
-     * @param app 应用
-     * @return {@code true} 保存成功，{@code false} 保存失败
-     */
-    @PostMapping("save")
-    public boolean save(@RequestBody App app) {
-        return appService.save(app);
+    @GetMapping(value = "/chat/gen/code", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<ServerSentEvent<String>> chatToGenCode(@RequestParam Long appId, @RequestParam String message, HttpServletRequest request) {
+        // 参数校验
+        ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR, "应用 id 错误");
+        ThrowUtils.throwIf(StrUtil.isBlank(message), ErrorCode.PARAMS_ERROR, "提示词不能为空");
+        // 获取当前登录用户
+        User loginUser = userService.getLoginUser(request);
+        // 调用服务生成代码（SSE 流式返回）
+        Flux<String> contentFlux = appService.doToGenCode(appId, message, loginUser);
+        return contentFlux.map(chunk -> {
+            Map<String, String> wrapper = Map.of("d", chunk);
+            String jsonData = JSONUtil.toJsonStr(wrapper);
+            return ServerSentEvent.<String>builder().data(jsonData).build();
+        }).concatWith(Mono.just(
+                // 发送结束事件
+                ServerSentEvent.<String>builder().event("done").data("").build()));
     }
 
     /**
-     * 根据主键删除应用。
+     * 应用部署
      *
-     * @param id 主键
-     * @return {@code true} 删除成功，{@code false} 删除失败
+     * @param appDeployRequest 部署请求
+     * @param request          请求
+     * @return 部署 URL
      */
-    @DeleteMapping("remove/{id}")
-    public boolean remove(@PathVariable Long id) {
-        return appService.removeById(id);
-    }
-
-    /**
-     * 根据主键更新应用。
-     *
-     * @param app 应用
-     * @return {@code true} 更新成功，{@code false} 更新失败
-     */
-    @PutMapping("update")
-    public boolean update(@RequestBody App app) {
-        return appService.updateById(app);
-    }
-
-    /**
-     * 查询所有应用。
-     *
-     * @return 所有数据
-     */
-    @GetMapping("list")
-    public List<App> list() {
-        return appService.list();
-    }
-
-    /**
-     * 根据主键获取应用。
-     *
-     * @param id 应用主键
-     * @return 应用详情
-     */
-    @GetMapping("getInfo/{id}")
-    public App getInfo(@PathVariable Long id) {
-        return appService.getById(id);
-    }
-
-    /**
-     * 分页查询应用。
-     *
-     * @param page 分页对象
-     * @return 分页对象
-     */
-    @GetMapping("page")
-    public Page<App> page(Page<App> page) {
-        return appService.page(page);
+    @PostMapping("/deploy")
+    public BaseResponse<String> deployApp(@RequestBody AppDeployRequest appDeployRequest, HttpServletRequest request) {
+        // 检查部署请求是否为空
+        ThrowUtils.throwIf(appDeployRequest == null, ErrorCode.PARAMS_ERROR);
+        // 获取应用 ID
+        Long appId = appDeployRequest.getAppId();
+        // 检查应用 ID 是否为空
+        ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR, "应用 ID 不能为空");
+        // 获取当前登录用户
+        User loginUser = userService.getLoginUser(request);
+        // 调用服务部署应用
+        String deployUrl = appService.deployApp(appId, loginUser);
+        // 返回部署 URL
+        return ResultUtils.success(deployUrl);
     }
 
 
@@ -242,7 +218,6 @@ public class AppController {
         return ResultUtils.success(appVOPage);
     }
 
-
     /**
      * 分页获取精选应用列表
      *
@@ -267,7 +242,6 @@ public class AppController {
         appVOPage.setRecords(appVOList);
         return ResultUtils.success(appVOPage);
     }
-
 
     /**
      * 管理员删除应用
@@ -352,52 +326,5 @@ public class AppController {
         ThrowUtils.throwIf(app == null, ErrorCode.NOT_FOUND_ERROR);
         // 获取封装类
         return ResultUtils.success(appService.getAppVO(app));
-    }
-
-    /**
-     * 应用聊天生成代码（流式 SSE）
-     *
-     * @param appId   应用 ID
-     * @param message 用户消息
-     * @param request 请求对象
-     * @return 生成结果流
-     */
-    @GetMapping(value = "/chat/gen/code", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<ServerSentEvent<String>> chatToGenCode(@RequestParam Long appId, @RequestParam String message, HttpServletRequest request) {
-        // 参数校验
-        ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR, "应用ID无效");
-        ThrowUtils.throwIf(StrUtil.isBlank(message), ErrorCode.PARAMS_ERROR, "用户消息不能为空");
-        // 获取当前登录用户
-        User loginUser = userService.getLoginUser(request);
-        // 调用服务生成代码（流式）
-        Flux<String> contentFlux = appService.doToGenCode(appId, message, loginUser);
-        // 转换为 ServerSentEvent 格式
-        return contentFlux.map(chunk -> {
-                    // 将内容包装成JSON对象
-                    Map<String, String> wrapper = Map.of("d", chunk);
-                    String jsonData = JSONUtil.toJsonStr(wrapper);
-                    return ServerSentEvent.<String>builder().data(jsonData).build();
-                })
-                // 发送结束事件
-                .concatWith(Mono.just(ServerSentEvent.<String>builder().event("done").data("").build()));
-    }
-
-    /**
-     * 应用部署
-     * @param deployRequest 部署请求
-     * @param request 请求
-     * @return 部署 URL
-     */
-    @PostMapping("/deploy")
-    public BaseResponse<String> deployApp(@RequestBody AppDeployRequest deployRequest, HttpServletRequest request) {
-        ThrowUtils.throwIf(deployRequest == null, ErrorCode.PARAMS_ERROR);
-        Long appId = deployRequest.getAppId();
-        ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR, "应用ID无效");
-        // 获取当前登录用户
-        User loginUser = userService.getLoginUser(request);
-        ThrowUtils.throwIf(loginUser == null, ErrorCode.PARAMS_ERROR, "用户未登录");
-        // 应用部署地址
-        String url = appService.deployApp(appId, loginUser);
-        return ResultUtils.success(url);
     }
 }
