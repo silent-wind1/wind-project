@@ -11,45 +11,45 @@
     </div>
 
     <div class="edit-container">
-      <a-card title="基本信息" :loading="loading">
+      <a-card :loading="loading" title="基本信息">
         <a-form
+          ref="formRef"
           :model="formData"
           :rules="rules"
           layout="vertical"
           @finish="handleSubmit"
-          ref="formRef"
         >
           <a-form-item label="应用名称" name="appName">
             <a-input
               v-model:value="formData.appName"
-              placeholder="请输入应用名称"
               :maxlength="50"
+              placeholder="请输入应用名称"
               show-count
             />
           </a-form-item>
 
           <a-form-item
             v-if="isAdmin"
+            extra="支持图片链接，建议尺寸：400x300"
             label="应用封面"
             name="cover"
-            extra="支持图片链接，建议尺寸：400x300"
           >
             <a-input v-model:value="formData.cover" placeholder="请输入封面图片链接" />
             <div v-if="formData.cover" class="cover-preview">
               <a-image
-                :src="formData.cover"
-                :width="200"
                 :height="150"
+                :src="getImageUrl(formData.cover)"
+                :width="200"
                 fallback="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
               />
             </div>
           </a-form-item>
 
-          <a-form-item v-if="isAdmin" label="优先级" name="priority" extra="设置为99表示精选应用">
+          <a-form-item v-if="isAdmin" extra="设置为99表示精选应用" label="优先级" name="priority">
             <a-input-number
               v-model:value="formData.priority"
-              :min="0"
               :max="99"
+              :min="0"
               style="width: 200px"
             />
           </a-form-item>
@@ -57,28 +57,28 @@
           <a-form-item label="初始提示词" name="initPrompt">
             <a-textarea
               v-model:value="formData.initPrompt"
-              placeholder="请输入初始提示词"
-              :rows="4"
               :maxlength="1000"
-              show-count
+              :rows="4"
               disabled
+              placeholder="请输入初始提示词"
+              show-count
             />
             <div class="form-tip">初始提示词不可修改</div>
           </a-form-item>
 
           <a-form-item label="生成类型" name="codeGenType">
-            <a-input v-model:value="formData.codeGenType" placeholder="生成类型" disabled />
+            <a-input v-model:value="formData.codeGenType" disabled placeholder="生成类型" />
             <div class="form-tip">生成类型不可修改</div>
           </a-form-item>
 
           <a-form-item v-if="formData.deployKey" label="部署密钥" name="deployKey">
-            <a-input v-model:value="formData.deployKey" placeholder="部署密钥" disabled />
+            <a-input v-model:value="formData.deployKey" disabled placeholder="部署密钥" />
             <div class="form-tip">部署密钥不可修改</div>
           </a-form-item>
 
           <a-form-item>
             <a-space>
-              <a-button type="primary" html-type="submit" :loading="submitting">
+              <a-button :loading="submitting" html-type="submit" type="primary">
                 保存修改
               </a-button>
               <a-button @click="resetForm">重置</a-button>
@@ -89,14 +89,14 @@
       </a-card>
 
       <!-- 应用信息展示 -->
-      <a-card title="应用信息" style="margin-top: 24px">
+      <a-card style="margin-top: 24px" title="应用信息">
         <a-descriptions :column="2" bordered>
           <a-descriptions-item label="应用ID">
             {{ appInfo?.id }}
           </a-descriptions-item>
           <a-descriptions-item label="创建者">
             <div class="user-info">
-              <a-avatar :src="appInfo?.user?.userAvatar" size="small" />
+              <a-avatar :src="getImageUrl(appInfo?.user?.userAvatar || '')" size="small" />
               <span>{{ appInfo?.user?.userName || '未知用户' }}</span>
             </div>
           </a-descriptions-item>
@@ -110,7 +110,7 @@
             {{ appInfo?.deployedTime ? formatTime(appInfo.deployedTime) : '未部署' }}
           </a-descriptions-item>
           <a-descriptions-item label="访问链接">
-            <a-button v-if="appInfo?.deployKey" type="link" @click="openPreview" size="small">
+            <a-button v-if="appInfo?.deployKey" size="small" type="link" @click="openPreview">
               查看预览
             </a-button>
             <span v-else>未部署</span>
@@ -121,15 +121,16 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, reactive, onMounted, computed } from 'vue'
+<script lang="ts" setup>
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import type { FormInstance } from 'ant-design-vue'
 import { message } from 'ant-design-vue'
 import { useLoginUserStore } from '@/stores/loginUser'
 import { getAppVoById, updateApp, updateAppByAdmin } from '@/api/appController'
 import { ArrowLeftOutlined } from '@ant-design/icons-vue'
 import dayjs from 'dayjs'
-import type { FormInstance } from 'ant-design-vue'
+import { getImageUrl } from '@/utils/imageUtils'
 
 const route = useRoute()
 const router = useRouter()
@@ -177,7 +178,7 @@ const fetchAppInfo = async () => {
 
   loading.value = true
   try {
-    const res = await getAppVoById({ id: Number(id) })
+    const res = await getAppVoById({ id: String(id) })
     if (res.data.code === 0 && res.data.data) {
       appInfo.value = res.data.data
 

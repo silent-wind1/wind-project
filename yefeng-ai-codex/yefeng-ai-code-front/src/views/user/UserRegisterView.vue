@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import { useRouter } from 'vue-router'
 import { userRegister } from '@/api/userController.ts'
 import { message } from 'ant-design-vue'
@@ -49,26 +49,26 @@ const handleSubmit = async (values: API.UserRegisterRequest) => {
   <div id="userRegisterView">
     <h2 class="title">Wind AI 应用生成 - 用户注册</h2>
     <div class="desc">生成完整应用</div>
-    <a-form :model="formState" name="basic" autocomplete="off" @finish="handleSubmit">
-      <a-form-item name="userAccount" :rules="[{ required: true, message: '请输入账号' }]">
+    <a-form :model="formState" autocomplete="off" name="basic" @finish="handleSubmit">
+      <a-form-item :rules="[{ required: true, message: '请输入账号' }]" name="userAccount">
         <a-input v-model:value="formState.userAccount" placeholder="请输入账号" />
       </a-form-item>
       <a-form-item
-        name="userPassword"
         :rules="[
           { required: true, message: '请输入密码' },
           { min: 8, message: '密码不能小于 8 位' },
         ]"
+        name="userPassword"
       >
         <a-input-password v-model:value="formState.userPassword" placeholder="请输入密码" />
       </a-form-item>
       <a-form-item
-        name="checkPassword"
         :rules="[
           { required: true, message: '请确认密码' },
           { min: 8, message: '密码不能小于 8 位' },
           { validator: validateCheckPassword },
         ]"
+        name="checkPassword"
       >
         <a-input-password v-model:value="formState.checkPassword" placeholder="请确认密码" />
       </a-form-item>
@@ -77,7 +77,7 @@ const handleSubmit = async (values: API.UserRegisterRequest) => {
         <RouterLink to="/user/login">去登录</RouterLink>
       </div>
       <a-form-item>
-        <a-button type="primary" html-type="submit" style="width: 100%">注册</a-button>
+        <a-button html-type="submit" style="width: 100%" type="primary">注册</a-button>
       </a-form-item>
     </a-form>
   </div>

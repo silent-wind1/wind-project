@@ -1,7 +1,7 @@
 <template>
   <div id="appManagePage">
     <!-- 搜索表单 -->
-    <a-form layout="inline" :model="searchParams" @finish="doSearch">
+    <a-form :model="searchParams" layout="inline" @finish="doSearch">
       <a-form-item label="应用名称">
         <a-input v-model:value="searchParams.appName" placeholder="输入应用名称" />
       </a-form-item>
@@ -21,7 +21,7 @@
         </a-select>
       </a-form-item>
       <a-form-item>
-        <a-button type="primary" html-type="submit">搜索</a-button>
+        <a-button html-type="submit" type="primary">搜索</a-button>
       </a-form-item>
     </a-form>
     <a-divider />
@@ -31,12 +31,12 @@
       :columns="columns"
       :data-source="data"
       :pagination="pagination"
-      @change="doTableChange"
       :scroll="{ x: 1200 }"
+      @change="doTableChange"
     >
       <template #bodyCell="{ column, record }">
         <template v-if="column.dataIndex === 'cover'">
-          <a-image v-if="record.cover" :src="record.cover" :width="80" :height="60" />
+          <a-image v-if="record.cover" :height="60" :src="getImageUrl(record.cover)" :width="80" />
           <div v-else class="no-cover">无封面</div>
         </template>
         <template v-else-if="column.dataIndex === 'initPrompt'">
@@ -59,18 +59,18 @@
         </template>
         <template v-else-if="column.dataIndex === 'user'">
           <div class="user-info">
-            <a-avatar :src="record.user?.userAvatar" size="small" />
+            <a-avatar :src="getImageUrl(record.user?.userAvatar || '')" size="small" />
             <span>{{ record.user?.userName || '未知用户' }}</span>
           </div>
         </template>
         <template v-else-if="column.key === 'action'">
           <a-space>
-            <a-button type="primary" size="small" @click="editApp(record)"> 编辑 </a-button>
+            <a-button size="small" type="primary" @click="editApp(record)"> 编辑 </a-button>
             <a-button
-              type="default"
-              size="small"
-              @click="toggleFeatured(record)"
               :class="{ 'featured-btn': record.priority === 99 }"
+              size="small"
+              type="default"
+              @click="toggleFeatured(record)"
             >
               {{ record.priority === 99 ? '取消精选' : '精选' }}
             </a-button>
@@ -88,8 +88,9 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
-import { listAppVoByPageByAdmin, deleteAppByAdmin, updateAppByAdmin } from '@/api/appController'
+import { deleteAppByAdmin, listAppVoByPageByAdmin, updateAppByAdmin } from '@/api/appController'
 import dayjs from 'dayjs'
+import { getImageUrl } from '@/utils/imageUtils'
 
 const router = useRouter()
 

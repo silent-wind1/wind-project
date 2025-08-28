@@ -1,31 +1,32 @@
 <template>
   <a-layout-header class="header">
-    <a-row :wrap="false">
+    <a-row :wrap="false" align="middle" justify="space-between">
       <!-- 左侧：Logo和标题 -->
       <a-col flex="200px">
         <RouterLink to="/">
           <div class="header-left">
-            <img class="logo" src="@/assets/logo.jpg" alt="Logo" />
+            <img alt="Logo" class="logo" src="@/assets/logo.jpg" />
             <h1 class="site-title">wind code</h1>
           </div>
         </RouterLink>
       </a-col>
       <!-- 中间：导航菜单 -->
-      <a-col flex="auto">
+      <a-col class="nav-center" flex="auto">
         <a-menu
           v-model:selectedKeys="selectedKeys"
-          mode="horizontal"
           :items="menuItems"
+          class="centered-menu"
+          mode="horizontal"
           @click="handleMenuClick"
         />
       </a-col>
       <!-- 右侧：用户操作区域 -->
-      <a-col>
+      <a-col class="user-section" flex="500px">
         <div class="user-login-status">
           <div v-if="loginUserStore.loginUser.id">
             <a-dropdown>
               <a-space>
-                <a-avatar :src="loginUserStore.loginUser.userAvatar" />
+                <a-avatar :src="getImageUrl(loginUserStore.loginUser.userAvatar || '')" />
                 {{ loginUserStore.loginUser.userName ?? '无名' }}
               </a-space>
               <template #overlay>
@@ -39,7 +40,7 @@
             </a-dropdown>
           </div>
           <div v-else>
-            <a-button type="primary" href="/user/login">登录</a-button>
+            <a-button href="/user/login" type="primary">登录</a-button>
           </div>
         </div>
       </a-col>
@@ -47,13 +48,14 @@
   </a-layout-header>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { computed, h, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { type MenuProps, message } from 'ant-design-vue'
 import { useLoginUserStore } from '@/stores/loginUser.ts'
 import { userLogout } from '@/api/userController.ts'
-import { LogoutOutlined, HomeOutlined } from '@ant-design/icons-vue'
+import { HomeOutlined, LogoutOutlined } from '@ant-design/icons-vue'
+import { getImageUrl } from '@/utils/imageUtils'
 
 // 获取登录用户信息
 const loginUserStore = useLoginUserStore()
@@ -159,6 +161,29 @@ const doLogout = async () => {
   margin: 0;
   font-size: 18px;
   color: #1890ff;
+}
+
+.nav-center {
+  display: flex;
+  justify-content: center;
+}
+
+.centered-menu {
+  border-bottom: none !important;
+}
+
+.centered-menu :deep(.ant-menu-item) {
+  margin: 0 10px !important;
+}
+
+.user-section {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.user-login-status {
+  display: flex;
+  align-items: center;
 }
 
 .ant-menu-horizontal {

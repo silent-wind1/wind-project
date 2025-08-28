@@ -12,7 +12,7 @@
           </template>
           应用详情
         </a-button>
-        <a-button type="primary" @click="deployApp" :loading="deploying">
+        <a-button :loading="deploying" type="primary" @click="deployApp">
           <template #icon>
             <CloudUploadOutlined />
           </template>
@@ -26,12 +26,12 @@
       <!-- 左侧对话区域 -->
       <div class="chat-section">
         <!-- 消息区域 -->
-        <div class="messages-container" ref="messagesContainer">
+        <div ref="messagesContainer" class="messages-container">
           <div v-for="(message, index) in messages" :key="index" class="message-item">
             <div v-if="message.type === 'user'" class="user-message">
               <div class="message-content">{{ message.content }}</div>
               <div class="message-avatar">
-                <a-avatar :src="loginUserStore.loginUser.userAvatar" />
+                <a-avatar :src="getImageUrl(loginUserStore.loginUser.userAvatar || '')" />
               </div>
             </div>
             <div v-else class="ai-message">
@@ -52,31 +52,31 @@
         <!-- 用户消息输入框 -->
         <div class="input-container">
           <div class="input-wrapper">
-            <a-tooltip v-if="!isOwner" title="无法在别人的作品下对话哦~" placement="top">
+            <a-tooltip v-if="!isOwner" placement="top" title="无法在别人的作品下对话哦~">
               <a-textarea
                 v-model:value="userInput"
-                placeholder="请描述你想生成的网站，越详细效果越好哦"
-                :rows="4"
-                :maxlength="1000"
-                @keydown.enter.prevent="sendMessage"
                 :disabled="isGenerating || !isOwner"
+                :maxlength="1000"
+                :rows="4"
+                placeholder="请描述你想生成的网站，越详细效果越好哦"
+                @keydown.enter.prevent="sendMessage"
               />
             </a-tooltip>
             <a-textarea
               v-else
               v-model:value="userInput"
-              placeholder="请描述你想生成的网站，越详细效果越好哦"
-              :rows="4"
-              :maxlength="1000"
-              @keydown.enter.prevent="sendMessage"
               :disabled="isGenerating"
+              :maxlength="1000"
+              :rows="4"
+              placeholder="请描述你想生成的网站，越详细效果越好哦"
+              @keydown.enter.prevent="sendMessage"
             />
             <div class="input-actions">
               <a-button
+                :disabled="!isOwner"
+                :loading="isGenerating"
                 type="primary"
                 @click="sendMessage"
-                :loading="isGenerating"
-                :disabled="!isOwner"
               >
                 <template #icon>
                   <SendOutlined />
@@ -125,8 +125,8 @@
       v-model:open="appDetailVisible"
       :app="appInfo"
       :show-actions="isOwner || isAdmin"
-      @edit="editApp"
       @delete="deleteApp"
+      @edit="editApp"
     />
 
     <!-- 部署成功弹窗 -->
@@ -138,15 +138,15 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, onMounted, nextTick, onUnmounted, computed } from 'vue'
+<script lang="ts" setup>
+import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { useLoginUserStore } from '@/stores/loginUser'
 import {
-  getAppVoById,
-  deployApp as deployAppApi,
   deleteApp as deleteAppApi,
+  deployApp as deployAppApi,
+  getAppVoById,
 } from '@/api/appController'
 import { CodeGenTypeEnum } from '@/utils/codeGenTypes'
 import request from '@/request'
@@ -156,12 +156,13 @@ import AppDetailModal from '@/components/AppDetailModal.vue'
 import DeploySuccessModal from '@/components/DeploySuccessModal.vue'
 import aiAvatar from '@/assets/logo.jpg'
 import { API_BASE_URL, getStaticPreviewUrl } from '@/config/env'
+import { getImageUrl } from '@/utils/imageUtils'
 
 import {
   CloudUploadOutlined,
-  SendOutlined,
   ExportOutlined,
   InfoCircleOutlined,
+  SendOutlined,
 } from '@ant-design/icons-vue'
 
 const route = useRoute()

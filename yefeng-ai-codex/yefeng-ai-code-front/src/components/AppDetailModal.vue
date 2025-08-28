@@ -1,5 +1,5 @@
 <template>
-  <a-modal v-model:open="visible" title="应用详情" :footer="null" width="500px">
+  <a-modal v-model:open="visible" :footer="null" title="应用详情" width="500px">
     <div class="app-detail-content">
       <!-- 应用基础信息 -->
       <div class="app-basic-info">
@@ -23,10 +23,10 @@
             修改
           </a-button>
           <a-popconfirm
+            cancel-text="取消"
+            ok-text="确定"
             title="确定要删除这个应用吗？"
             @confirm="handleDelete"
-            ok-text="确定"
-            cancel-text="取消"
           >
             <a-button danger>
               <template #icon>
@@ -41,9 +41,9 @@
   </a-modal>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { computed } from 'vue'
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons-vue'
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons-vue'
 import UserInfo from './UserInfo.vue'
 import { formatTime } from '@/utils/time'
 

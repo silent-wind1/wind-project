@@ -1,7 +1,7 @@
 <template>
   <div id="userManageView">
     <!-- 搜索表单 -->
-    <a-form layout="inline" :model="searchParams" @finish="doSearch">
+    <a-form :model="searchParams" layout="inline" @finish="doSearch">
       <a-form-item label="账号">
         <a-input v-model:value="searchParams.userAccount" placeholder="输入账号" />
       </a-form-item>
@@ -9,7 +9,7 @@
         <a-input v-model:value="searchParams.userName" placeholder="输入用户名" />
       </a-form-item>
       <a-form-item>
-        <a-button type="primary" html-type="submit">搜索</a-button>
+        <a-button html-type="submit" type="primary">搜索</a-button>
       </a-form-item>
     </a-form>
     <a-divider />
@@ -30,7 +30,7 @@
       </template>
       <template #bodyCell="{ column, record }">
         <template v-if="column.dataIndex === 'userAvatar'">
-          <a-image :src="record.userAvatar" :width="120" />
+          <a-image :src="getImageUrl(record.userAvatar || '')" :width="120" />
         </template>
         <template v-else-if="column.dataIndex === 'userRole'">
           <div v-if="record.userRole === 'admin'">
@@ -57,11 +57,11 @@
     <!-- 编辑对话框 -->
     <a-modal
       v-model:open="editDialogVisible"
-      title="编辑用户信息"
-      ok-text="保存"
       cancel-text="取消"
-      @ok="handleEditSubmit"
+      ok-text="保存"
+      title="编辑用户信息"
       @cancel="handleEditCancel"
+      @ok="handleEditSubmit"
     >
       <a-form :model="editFormState" layout="vertical">
         <a-form-item label="id">
@@ -73,17 +73,17 @@
         <a-form-item label="头像">
           <a-upload
             v-model:value="editFormState.userAvatar"
-            name="avatar"
-            list-type="picture-card"
-            class="avatar-uploader"
-            :show-upload-list="false"
             :before-upload="beforeUpload"
             :customRequest="customUpload"
+            :show-upload-list="false"
+            class="avatar-uploader"
+            list-type="picture-card"
+            name="avatar"
             @change="handleUploadChange"
           >
             <img
               v-if="editFormState.userAvatar"
-              :src="editFormState.userAvatar"
+              :src="getImageUrl(editFormState.userAvatar)"
               alt="avatar"
               class="avatar-preview"
             />
@@ -111,13 +111,14 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { SmileOutlined, PlusOutlined, LoadingOutlined } from '@ant-design/icons-vue'
+import { LoadingOutlined, PlusOutlined, SmileOutlined } from '@ant-design/icons-vue'
 import { computed, onMounted, reactive, ref } from 'vue'
 import { deleteUser, listUserVoByPage, updateUser } from '@/api/userController.ts'
 import type { UploadChangeParam } from 'ant-design-vue'
 import { message } from 'ant-design-vue'
 import dayjs from 'dayjs'
 import { uploadFile } from '@/api/fileController.ts'
+import { getImageUrl } from '@/utils/imageUtils'
 
 const columns = [
   {
@@ -281,7 +282,11 @@ const beforeUpload = (file: File) => {
 }
 
 // 添加自定义上传方法
-const customUpload = async (options: { file: File; onSuccess:  (url: string | undefined) => void; onError: (error: unknown) => void }) => {
+const customUpload = async (options: {
+  file: File
+  onSuccess: (url: string | undefined) => void
+  onError: (error: unknown) => void
+}) => {
   const { file, onSuccess, onError } = options
   try {
     const res = await uploadFile(file, { relateId: '' })
@@ -324,7 +329,6 @@ onMounted(() => {
 
 <style>
 #userManageView {
-  //width: 1024px;
   text-align: center;
 }
 

@@ -2,7 +2,7 @@
   <div class="markdown-content" v-html="renderedMarkdown"></div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { computed } from 'vue'
 import MarkdownIt from 'markdown-it'
 import hljs from 'highlight.js'

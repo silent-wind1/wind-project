@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import { reactive } from 'vue'
 import { message } from 'ant-design-vue'
 import { useRouter } from 'vue-router'
@@ -37,16 +37,16 @@ const handleSubmit = async (values: never) => {
   <div id="userLoginView">
     <h2 class="title">Wind AI 应用生成 - 用户登录</h2>
     <div class="desc">自动生成完整应用</div>
-    <a-form :model="formState" name="basic" autocomplete="off" @finish="handleSubmit">
-      <a-form-item name="userAccount" :rules="[{ required: true, message: '请输入账号' }]">
+    <a-form :model="formState" autocomplete="off" name="basic" @finish="handleSubmit">
+      <a-form-item :rules="[{ required: true, message: '请输入账号' }]" name="userAccount">
         <a-input v-model:value="formState.userAccount" placeholder="请输入账号" />
       </a-form-item>
       <a-form-item
-        name="userPassword"
         :rules="[
           { required: true, message: '请输入密码' },
           { min: 8, message: '密码不能小于 8 位' },
         ]"
+        name="userPassword"
       >
         <a-input-password v-model:value="formState.userPassword" placeholder="请输入密码" />
       </a-form-item>
@@ -56,7 +56,7 @@ const handleSubmit = async (values: never) => {
       </div>
       <a-form-item>
         <div class="user-login-status">
-          <a-button type="primary" html-type="submit" style="width: 100%">登录</a-button>
+          <a-button html-type="submit" style="width: 100%" type="primary">登录</a-button>
         </div>
       </a-form-item>
     </a-form>
@@ -64,7 +64,7 @@ const handleSubmit = async (values: never) => {
 </template>
 
 <style scoped>
-#userLoginView{
+#userLoginView {
   max-width: 360px;
   margin: 0 auto;
 }

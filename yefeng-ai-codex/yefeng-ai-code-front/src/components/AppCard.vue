@@ -1,7 +1,7 @@
 <template>
-  <div class="app-card" :class="{ 'app-card--featured': featured }">
+  <div :class="{ 'app-card--featured': featured }" class="app-card">
     <div class="app-preview">
-      <img v-if="app.cover" :src="app.cover" :alt="app.appName" />
+      <img v-if="app.cover" :alt="app.appName" :src="getImageUrl(app.cover)" />
       <div v-else class="app-placeholder">
         <span>🤖</span>
       </div>
@@ -14,7 +14,7 @@
     </div>
     <div class="app-info">
       <div class="app-info-left">
-        <a-avatar :src="app.user?.userAvatar" :size="40">
+        <a-avatar :size="40" :src="getImageUrl(app.user?.userAvatar || '')">
           {{ app.user?.userName?.charAt(0) || 'U' }}
         </a-avatar>
       </div>
@@ -28,7 +28,9 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
+import { getImageUrl } from '@/utils/imageUtils'
+
 interface Props {
   app: API.AppVO
   featured?: boolean
