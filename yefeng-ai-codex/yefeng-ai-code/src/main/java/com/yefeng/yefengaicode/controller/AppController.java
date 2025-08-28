@@ -183,8 +183,8 @@ public class AppController {
      * @return 应用详情
      */
     @GetMapping("/get/vo")
-    public BaseResponse<AppVO> getAppVOById(long id) {
-        ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
+    public BaseResponse<AppVO> getAppVOById(String id) {
+        ThrowUtils.throwIf(id == null, ErrorCode.PARAMS_ERROR);
         // 查询数据库
         App app = appService.getById(id);
         ThrowUtils.throwIf(app == null, ErrorCode.NOT_FOUND_ERROR);

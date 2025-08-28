@@ -1,14 +1,15 @@
 package com.yefeng.yefengaicode.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * @description: 跨域配置
- * @author:
+ * @author: yefeng
  */
-
+@Slf4j
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
 
@@ -19,9 +20,6 @@ public class CorsConfig implements WebMvcConfigurer {
                 // 允许发送 Cookie
                 .allowCredentials(true)
                 // 放行哪些域名（必须用 patterns，否则 * 会和 allowCredentials 冲突）
-                .allowedOriginPatterns("*")
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("*")
-                .exposedHeaders("*");
+                .allowedOriginPatterns("*").allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS").allowedHeaders("*").exposedHeaders("*");
     }
 }

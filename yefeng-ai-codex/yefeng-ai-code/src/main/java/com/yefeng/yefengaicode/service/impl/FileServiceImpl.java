@@ -4,12 +4,14 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.IdUtil;
 import com.yefeng.yefengaicode.common.BaseResponse;
 import com.yefeng.yefengaicode.common.ResultUtils;
+import com.yefeng.yefengaicode.config.FileUploadConfig;
 import com.yefeng.yefengaicode.exception.BusinessException;
 import com.yefeng.yefengaicode.exception.ErrorCode;
 import com.yefeng.yefengaicode.exception.FileException;
 import com.yefeng.yefengaicode.exception.FileUploadBizEnum;
 import com.yefeng.yefengaicode.model.dto.file.LdsUploadFileRequest;
 import com.yefeng.yefengaicode.service.FileService;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,6 +24,8 @@ import static com.yefeng.yefengaicode.exception.FileCode.FILE_IS_BLANK;
 @Slf4j
 @Service
 public class FileServiceImpl implements FileService {
+    @Resource
+    private FileUploadConfig fileUploadConfig;
 
     /**
      * 文件上传
@@ -35,19 +39,17 @@ public class FileServiceImpl implements FileService {
         if (file.isEmpty()) {
             throw new FileException(FILE_IS_BLANK);
         }
-        String prefix = "yefeng-";
-        String filename = prefix + IdUtil.simpleUUID();
-        String profile = "img/";
-        String filepath = profile + filename + "." + FileUtil.getSuffix(file.getOriginalFilename());
+        String filename = fileUploadConfig.getPrefix() + IdUtil.simpleUUID();
+        String filepath = fileUploadConfig.getImagePath() + File.separator + filename + "." + FileUtil.getSuffix(file.getOriginalFilename());
         try {
-            File filePath = new File("D:/" +filepath);
+            File filePath = new File(fileUploadConfig.getBasePath() + File.separator + filepath);
             if (!filePath.getParentFile().exists()) {
                 boolean mkdir = filePath.getParentFile().mkdirs();
                 if (!mkdir) {
                     throw new FileException("文件上传失败", 500);
                 }
             }
-            file.transferTo(new File(filepath));
+            file.transferTo(filePath);
         } catch (Exception e) {
             throw new FileException(e);
         }

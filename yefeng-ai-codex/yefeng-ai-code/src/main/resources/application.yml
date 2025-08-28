@@ -8,6 +8,25 @@ spring:
     password: 031214t+
   profiles:
     active: local
+  servlet:
+    multipart:
+      # 单个文件最大大小
+      max-file-size: 15MB
+      # 所有上传文件最大大小
+      max-request-size: 50MB
+
+# 文件上传配置
+file:
+  upload:
+    # 文件保存根目录（绝对路径）
+    base-path: D:/uploads
+    # 图片文件子目录
+    image-path: images
+    # 其他文件子目录
+    other-path: files
+    # 文件访问域名（用于构建完整的访问URL）
+    access-domain: http://localhost:2411
+
 server:
   port: 2411
   servlet:
