@@ -23,6 +23,7 @@ import com.yefeng.yefengaicode.service.AppService;
 import com.yefeng.yefengaicode.service.UserService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 
 import java.io.File;
@@ -157,6 +158,32 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         boolean result = this.updateById(updateApp);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "更新失败");
         return String.format("%s/%s", AppConstant.CODE_DEPLOY_HOST, deployKey);
+    }
+
+    /**
+     * 批量保存 Excel导入数据应用
+     * @param appList 应用列表
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void saveBatchApp(List<App> appList, int batchSize) {
+        if (CollUtil.isEmpty(appList)) {
+            return;
+        }
+        if (batchSize <= 0) {
+            batchSize = 1000;
+        }
+        this.saveBatch(appList, batchSize);
+    }
+
+    /**
+     * 统计 App 名称数量
+     * @param appName 应用名称
+     * @return 统计行数
+     */
+    @Override
+    public long countByAppName(String appName) {
+        return this.count(QueryWrapper.create().eq("appName", appName));
     }
 
 

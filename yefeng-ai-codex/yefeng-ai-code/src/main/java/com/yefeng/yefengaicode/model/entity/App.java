@@ -1,14 +1,12 @@
 package com.yefeng.yefengaicode.model.entity;
 
+import com.alibaba.excel.annotation.ExcelProperty;
 import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import com.mybatisflex.core.keygen.KeyGenerators;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -23,6 +21,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 @Table("app")
 public class App implements Serializable {
 
@@ -39,23 +38,27 @@ public class App implements Serializable {
      * 应用名称
      */
     @Column("appName")
+    @ExcelProperty("应用名称")
     private String appName;
 
     /**
      * 应用封面
      */
+    @ExcelProperty("应用封面")
     private String cover;
 
     /**
      * 应用初始化的 prompt
      */
     @Column("initPrompt")
+    @ExcelProperty("应用初始化的prompt")
     private String initPrompt;
 
     /**
      * 代码生成类型（枚举）
      */
     @Column("codeGenType")
+    @ExcelProperty("代码生成类型")
     private String codeGenType;
 
     /**
@@ -68,11 +71,14 @@ public class App implements Serializable {
      * 部署时间
      */
     @Column("deployedTime")
+    @ExcelProperty("部署时间")
     private LocalDateTime deployedTime;
 
     /**
      * 优先级
      */
+    @Column("priority")
+    @ExcelProperty("优先级")
     private Integer priority;
 
     /**

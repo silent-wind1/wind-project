@@ -2,6 +2,7 @@ package com.yefeng.yefengaicode.service;
 
 import com.yefeng.yefengaicode.common.BaseResponse;
 import com.yefeng.yefengaicode.model.dto.file.LdsUploadFileRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface FileService {
@@ -20,4 +21,6 @@ public interface FileService {
      * @return 文件
      */
     byte[] downloadFile(String fileId);
+
+    BaseResponse<String> importExcel(MultipartFile file, HttpServletRequest request);
 }

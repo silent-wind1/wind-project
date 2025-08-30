@@ -26,4 +26,8 @@ public interface AppService extends IService<App> {
     Flux<String> doToGenCode(Long appId, String message, User loginUser);
 
     String deployApp(Long appId, User loginUser);
+
+    void saveBatchApp(List<App> appList, int batchSize);
+
+    long countByAppName(String appName);
 }

@@ -2,6 +2,8 @@ package com.yefeng.yefengaicode.service.impl;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.IdUtil;
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.support.ExcelTypeEnum;
 import com.yefeng.yefengaicode.common.BaseResponse;
 import com.yefeng.yefengaicode.common.ResultUtils;
 import com.yefeng.yefengaicode.config.FileUploadConfig;
@@ -9,14 +11,20 @@ import com.yefeng.yefengaicode.exception.BusinessException;
 import com.yefeng.yefengaicode.exception.ErrorCode;
 import com.yefeng.yefengaicode.exception.FileException;
 import com.yefeng.yefengaicode.exception.FileUploadBizEnum;
+import com.yefeng.yefengaicode.listener.ExcelListener;
 import com.yefeng.yefengaicode.model.dto.file.LdsUploadFileRequest;
+import com.yefeng.yefengaicode.model.entity.App;
+import com.yefeng.yefengaicode.service.AppService;
 import com.yefeng.yefengaicode.service.FileService;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 
 import static com.yefeng.yefengaicode.exception.FileCode.FILE_IS_BLANK;
@@ -26,6 +34,9 @@ import static com.yefeng.yefengaicode.exception.FileCode.FILE_IS_BLANK;
 public class FileServiceImpl implements FileService {
     @Resource
     private FileUploadConfig fileUploadConfig;
+
+    @Resource
+    private AppService appService;
 
     /**
      * 文件上传
@@ -59,6 +70,34 @@ public class FileServiceImpl implements FileService {
     @Override
     public byte[] downloadFile(String fileId) {
         return new byte[0];
+    }
+
+    /**
+     * 导入Excel文件内容数据
+     * @param file excel文件
+     * @param request
+     * @return
+     */
+    @Override
+    public BaseResponse<String> importExcel(MultipartFile file, HttpServletRequest request) {
+        if (file.isEmpty()) {
+            throw new FileException(FILE_IS_BLANK);
+        }
+        // 获取excel扩展名
+        String suffix = FileUtil.getSuffix(file.getOriginalFilename());
+        ExcelTypeEnum excelType = switch (suffix) {
+            case "xls" -> ExcelTypeEnum.XLS;
+            case "xlsx" -> ExcelTypeEnum.XLSX;
+            case null, default -> throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件类型错误");
+        };
+        try {
+            InputStream inputStream = file.getInputStream();
+            EasyExcel.read(inputStream, App.class, new ExcelListener(appService)).excelType(excelType).sheet(0).doRead();
+            return ResultUtils.success(null);
+        } catch (IOException e) {
+            log.error("导入Excel失败原因：{}",  e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 
 

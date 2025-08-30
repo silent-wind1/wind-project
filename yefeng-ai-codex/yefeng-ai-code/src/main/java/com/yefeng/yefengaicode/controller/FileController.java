@@ -28,4 +28,15 @@ public class FileController {
     public BaseResponse<String> uploadFile(@RequestPart("file") MultipartFile file, LdsUploadFileRequest fileRequest, HttpServletRequest request) {
         return fileService.uploadFile(file, fileRequest);
     }
+
+    /**
+     * 导入excel文件数据
+     *
+     * @param file excel 文件
+     * @return 返回状态
+     */
+    @PostMapping("/import-excel")
+    public BaseResponse<String> importExcel(@RequestPart("file") MultipartFile file, HttpServletRequest request) {
+        return fileService.importExcel(file, request);
+    }
 }
