@@ -38,27 +38,27 @@ public class App implements Serializable {
      * 应用名称
      */
     @Column("appName")
-    @ExcelProperty("应用名称")
+    @ExcelProperty(value = "应用名称", index = 0)
     private String appName;
 
     /**
      * 应用封面
      */
-    @ExcelProperty("应用封面")
+    @ExcelProperty(value = "应用封面", index = 1)
     private String cover;
 
     /**
      * 应用初始化的 prompt
      */
     @Column("initPrompt")
-    @ExcelProperty("应用初始化的prompt")
+    @ExcelProperty(value = "应用初始化的prompt", index = 2)
     private String initPrompt;
 
     /**
      * 代码生成类型（枚举）
      */
     @Column("codeGenType")
-    @ExcelProperty("代码生成类型")
+    @ExcelProperty(value = "代码生成类型", index = 3)
     private String codeGenType;
 
     /**
@@ -71,14 +71,14 @@ public class App implements Serializable {
      * 部署时间
      */
     @Column("deployedTime")
-    @ExcelProperty("部署时间")
+    @ExcelProperty(value = "部署时间", index = 4)
     private LocalDateTime deployedTime;
 
     /**
      * 优先级
      */
     @Column("priority")
-    @ExcelProperty("优先级")
+    @ExcelProperty(value = "优先级", index = 5)
     private Integer priority;
 
     /**

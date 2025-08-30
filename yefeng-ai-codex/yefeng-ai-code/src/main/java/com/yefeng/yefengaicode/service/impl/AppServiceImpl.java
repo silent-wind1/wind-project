@@ -22,6 +22,7 @@ import com.yefeng.yefengaicode.model.vo.UserVO;
 import com.yefeng.yefengaicode.service.AppService;
 import com.yefeng.yefengaicode.service.UserService;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
@@ -39,6 +40,7 @@ import java.util.stream.Collectors;
  *
  * @author yefeng
  */
+@Slf4j
 @Service
 public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppService {
     @Resource
@@ -161,15 +163,19 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
     }
 
     /**
-     * 批量保存 Excel导入数据应用
-     * @param appList 应用列表
+     * 批量保存 Excel导入数据应用 - 高性能版本
+     *
+     * @param appList   应用列表
+     * @param batchSize 批量大小
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void saveBatchApp(List<App> appList, int batchSize) {
         if (CollUtil.isEmpty(appList)) {
+            log.warn("批量保存应用列表为空，跳过处理");
             return;
         }
+
         if (batchSize <= 0) {
             batchSize = 1000;
         }
@@ -178,6 +184,7 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
 
     /**
      * 统计 App 名称数量
+     *
      * @param appName 应用名称
      * @return 统计行数
      */

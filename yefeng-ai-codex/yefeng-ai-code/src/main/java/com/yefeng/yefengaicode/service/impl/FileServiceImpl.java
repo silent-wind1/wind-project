@@ -3,6 +3,7 @@ package com.yefeng.yefengaicode.service.impl;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.IdUtil;
 import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.ExcelReader;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.yefeng.yefengaicode.common.BaseResponse;
 import com.yefeng.yefengaicode.common.ResultUtils;
@@ -26,6 +27,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static com.yefeng.yefengaicode.exception.FileCode.FILE_IS_BLANK;
 
@@ -73,8 +77,9 @@ public class FileServiceImpl implements FileService {
     }
 
     /**
-     * 导入Excel文件内容数据
-     * @param file excel文件
+     * 导入Excel文件内容数据 - 支持百万级数据多线程导入
+     *
+     * @param file    excel文件
      * @param request
      * @return
      */
@@ -90,14 +95,41 @@ public class FileServiceImpl implements FileService {
             case "xlsx" -> ExcelTypeEnum.XLSX;
             case null, default -> throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件类型错误");
         };
-        try {
-            InputStream inputStream = file.getInputStream();
-            EasyExcel.read(inputStream, App.class, new ExcelListener(appService)).excelType(excelType).sheet(0).doRead();
-            return ResultUtils.success(null);
-        } catch (IOException e) {
-            log.error("导入Excel失败原因：{}",  e.getMessage());
-            throw new RuntimeException(e);
+        // 获取excel sheet数量
+        int count = getSheetCount(file);
+        // 创建一个固定大小的线程池，大小与sheet数量相同
+        ExecutorService executor = Executors.newFixedThreadPool(count);
+        for (int sheetNo = 0; sheetNo < count; sheetNo++) {
+            // 向线程池提交一个任务
+            int finalSheetNo = sheetNo;
+            try {
+                InputStream inputStream = file.getInputStream();
+                executor.submit(() -> {
+                    // 使用EasyExcel读取指定的sheet
+                    EasyExcel.read(inputStream, App.class, new ExcelListener(appService)).excelType(excelType).sheet(finalSheetNo).doRead();
+                });
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
+        // 启动线程池的关闭序列
+        executor.shutdown();
+        // 等待所有任务完成，或者在等待超时前被中断
+        try {
+            boolean result = executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+            if (!result) {
+                executor.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            // 如果等待过程中线程被中断，打印异常信息
+            log.error("线程池等待任务完成时被中断", e);
+        }
+        return ResultUtils.success(null);
+    }
+
+    @Override
+    public BaseResponse<String> exportExcel() {
+        return null;
     }
 
 
@@ -120,6 +152,22 @@ public class FileServiceImpl implements FileService {
             if (!Arrays.asList("jpeg", "jpg", "svg", "png", "webp").contains(fileSuffix)) {
                 throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件类型错误");
             }
+        }
+    }
+
+    /**
+     * 获取excel sheet数量
+     *
+     * @param file excel文件
+     * @return sheet数量
+     */
+    private int getSheetCount(MultipartFile file) {
+        try {
+            InputStream inputStream = file.getInputStream();
+            ExcelReader reader = EasyExcel.read(inputStream).build();
+            return reader.excelExecutor().sheetList().size();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }

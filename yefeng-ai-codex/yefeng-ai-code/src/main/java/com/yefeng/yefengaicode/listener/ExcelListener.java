@@ -10,11 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Excel数据读取监听器 - 支持百万级数据处理
+ * 
  * @author wind
  * @description: 不能被spring管理，要每次读取excel都要new,然后里面用到spring可以构造方法传进去
  * @date 2025/8/30 13:21
  */
-
 @Slf4j
 public class ExcelListener implements ReadListener<App> {
     // 设置批量处理的数据大小
@@ -47,6 +48,7 @@ public class ExcelListener implements ReadListener<App> {
     public void doAfterAllAnalysed(AnalysisContext analysisContext) {
         // 如果还有未处理的数据，进行处理
         if (!appList.isEmpty()) {
+            log.info("处理未处理的数据：{}", appList);
             processBatch();
         }
     }

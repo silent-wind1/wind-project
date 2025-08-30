@@ -23,4 +23,6 @@ public interface FileService {
     byte[] downloadFile(String fileId);
 
     BaseResponse<String> importExcel(MultipartFile file, HttpServletRequest request);
+
+    BaseResponse<String> exportExcel();
 }

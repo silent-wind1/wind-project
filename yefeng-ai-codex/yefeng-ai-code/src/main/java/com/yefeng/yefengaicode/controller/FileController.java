@@ -39,4 +39,9 @@ public class FileController {
     public BaseResponse<String> importExcel(@RequestPart("file") MultipartFile file, HttpServletRequest request) {
         return fileService.importExcel(file, request);
     }
+
+
+    public BaseResponse<String> exportExcel() {
+        return fileService.exportExcel();
+    }
 }
