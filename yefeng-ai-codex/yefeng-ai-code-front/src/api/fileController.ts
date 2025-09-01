@@ -2,25 +2,36 @@
 /* eslint-disable */
 import request from '@/request'
 
-/** 上传文件 POST /file/upload */
-export async function uploadFile(
-  file: File,
-  fileRequest: API.LdsUploadFileRequest, // 添加元数据参数
-  options?: { [key: string]: string },
-) {
-  const formData = new FormData()
-
-  // 添加文件字段
-  formData.append('file', file)
-
-  // 添加元数据字段
-  Object.keys(fileRequest).forEach((key: string) => {
-    formData.append(key, (fileRequest as Record<string, any>)[key])
+/** 此处后端没有提供注释 POST /file/import-excel */
+export async function importExcel(body: {}, options?: { [key: string]: any }) {
+  return request<API.BaseResponseString>('/file/import-excel', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
   })
+}
 
+/** 此处后端没有提供注释 POST /file/upload */
+export async function uploadFile(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.uploadFileParams,
+  body: {},
+  options?: { [key: string]: any }
+) {
   return request<API.BaseResponseString>('/file/upload', {
     method: 'POST',
-    data: formData, // 使用 FormData
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    params: {
+      ...params,
+      fileRequest: undefined,
+      ...params['fileRequest'],
+    },
+    data: body,
     ...(options || {}),
   })
 }

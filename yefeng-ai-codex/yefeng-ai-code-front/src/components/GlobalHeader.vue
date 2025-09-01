@@ -12,13 +12,15 @@
       </a-col>
       <!-- 中间：导航菜单 -->
       <a-col class="nav-center" flex="auto">
-        <a-menu
-          v-model:selectedKeys="selectedKeys"
-          :items="menuItems"
-          class="centered-menu"
-          mode="horizontal"
-          @click="handleMenuClick"
-        />
+        <div class="nav-center-btn">
+          <a-menu
+            v-model:selectedKeys="selectedKeys"
+            :items="menuItems"
+            class="centered-menu"
+            mode="horizontal"
+            @click="handleMenuClick"
+          />
+        </div>
       </a-col>
       <!-- 右侧：用户操作区域 -->
       <a-col class="user-section" flex="500px">
@@ -85,6 +87,11 @@ const originItems = [
     key: '/admin/appManage',
     label: '应用管理',
     title: '应用管理',
+  },
+  {
+    key: '/admin/chatManage',
+    label: '对话管理',
+    title: '对话管理',
   },
   {
     key: '/about',
@@ -164,6 +171,11 @@ const doLogout = async () => {
 }
 
 .nav-center {
+  display: flex;
+  justify-content: center;
+}
+
+.nav-center-btn {
   display: flex;
   justify-content: center;
 }
