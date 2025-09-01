@@ -2,6 +2,7 @@ package com.yefeng.yefengaicode.controller;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.mybatisflex.core.paginate.Page;
+import com.mybatisflex.core.query.QueryWrapper;
 import com.yefeng.yefengaicode.annotation.AuthCheck;
 import com.yefeng.yefengaicode.common.BaseResponse;
 import com.yefeng.yefengaicode.common.DeleteRequest;
@@ -10,13 +11,16 @@ import com.yefeng.yefengaicode.constant.UserConstant;
 import com.yefeng.yefengaicode.exception.BusinessException;
 import com.yefeng.yefengaicode.exception.ErrorCode;
 import com.yefeng.yefengaicode.exception.ThrowUtils;
+import com.yefeng.yefengaicode.model.dto.history.ChatHistoryQueryRequest;
 import com.yefeng.yefengaicode.model.dto.user.*;
+import com.yefeng.yefengaicode.model.entity.ChatHistory;
 import com.yefeng.yefengaicode.model.entity.User;
 import com.yefeng.yefengaicode.model.vo.LoginUserVO;
 import com.yefeng.yefengaicode.model.vo.UserVO;
+import com.yefeng.yefengaicode.service.ChatHistoryService;
 import com.yefeng.yefengaicode.service.UserService;
+import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,8 +34,11 @@ import java.util.List;
 @RequestMapping("/user")
 public class UserController {
 
-    @Autowired
+    @Resource
     private UserService userService;
+
+    @Resource
+    private ChatHistoryService chatHistoryService;
 
     /**
      * 创建用户
@@ -118,8 +125,7 @@ public class UserController {
         ThrowUtils.throwIf(userQueryRequest == null, ErrorCode.PARAMS_ERROR);
         long pageNum = userQueryRequest.getPageNum();
         long pageSize = userQueryRequest.getPageSize();
-        Page<User> userPage = userService.page(Page.of(pageNum, pageSize),
-                userService.getQueryWrapper(userQueryRequest));
+        Page<User> userPage = userService.page(Page.of(pageNum, pageSize), userService.getQueryWrapper(userQueryRequest));
         // 数据脱敏
         Page<UserVO> userVOPage = new Page<>(pageNum, pageSize, userPage.getTotalRow());
         List<UserVO> userVOList = userService.getUserVOList(userPage.getRecords());
@@ -178,6 +184,25 @@ public class UserController {
     public BaseResponse<Boolean> userLogout(HttpServletRequest request) {
         ThrowUtils.throwIf(request == null, ErrorCode.PARAMS_ERROR);
         boolean result = userService.userLogout(request);
+        return ResultUtils.success(result);
+    }
+
+
+    /**
+     * 管理员分页查询所有对话历史
+     *
+     * @param chatHistoryQueryRequest 查询请求
+     * @return 对话历史分页
+     */
+    @PostMapping("/admin/list/page/vo")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Page<ChatHistory>> listAllChatHistoryByPageForAdmin(@RequestBody ChatHistoryQueryRequest chatHistoryQueryRequest) {
+        ThrowUtils.throwIf(chatHistoryQueryRequest == null, ErrorCode.PARAMS_ERROR);
+        long pageNum = chatHistoryQueryRequest.getPageNum();
+        long pageSize = chatHistoryQueryRequest.getPageSize();
+        // 查询数据
+        QueryWrapper queryWrapper = chatHistoryService.getQueryWrapper(chatHistoryQueryRequest);
+        Page<ChatHistory> result = chatHistoryService.page(Page.of(pageNum, pageSize), queryWrapper);
         return ResultUtils.success(result);
     }
 

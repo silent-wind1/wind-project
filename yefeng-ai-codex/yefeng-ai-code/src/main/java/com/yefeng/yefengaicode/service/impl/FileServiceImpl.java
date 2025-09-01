@@ -5,6 +5,7 @@ import cn.hutool.core.util.IdUtil;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelReader;
 import com.alibaba.excel.support.ExcelTypeEnum;
+import com.alibaba.excel.write.builder.ExcelWriterBuilder;
 import com.yefeng.yefengaicode.common.BaseResponse;
 import com.yefeng.yefengaicode.common.ResultUtils;
 import com.yefeng.yefengaicode.config.FileUploadConfig;
@@ -15,6 +16,7 @@ import com.yefeng.yefengaicode.exception.FileUploadBizEnum;
 import com.yefeng.yefengaicode.listener.ExcelListener;
 import com.yefeng.yefengaicode.model.dto.file.LdsUploadFileRequest;
 import com.yefeng.yefengaicode.model.entity.App;
+import com.yefeng.yefengaicode.model.vo.AppVO;
 import com.yefeng.yefengaicode.service.AppService;
 import com.yefeng.yefengaicode.service.FileService;
 import jakarta.annotation.Resource;
@@ -23,10 +25,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -129,6 +130,10 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public BaseResponse<String> exportExcel() {
+        List<AppVO> appVOList = appService.getAppVOList(null);
+        // 生成 Excel 文件并获取 InputStream
+        InputStream fileContent = generateExcelFile(appVOList);
+        String fileName = "data_" + System.currentTimeMillis() + ".xlsx";
         return null;
     }
 
@@ -169,5 +174,23 @@ public class FileServiceImpl implements FileService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * 生成Excel文件
+     * @param data 数据
+     * @return 文件流
+     */
+    private InputStream generateExcelFile(List<AppVO> data) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try {
+            ExcelWriterBuilder writerBuilder = EasyExcel.write(outputStream, AppVO.class);
+            writerBuilder.sheet("Data").doWrite(data);
+        } catch (Exception e) {
+            // 处理异常
+            log.error("生成Excel文件失败", e);
+            throw new RuntimeException("生成Excel文件失败", e);
+        }
+        return new ByteArrayInputStream(outputStream.toByteArray());
     }
 }
