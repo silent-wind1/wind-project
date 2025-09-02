@@ -17,7 +17,7 @@ class AiCodeGeneratorFacadeTest {
 
     @Test
     void generateCodeAndSaveCode() {
-        File file = aiCodeGeneratorFacade.generateCodeAndSaveCode("任务记录网站", CodeGenTypeEnum.MULTI_FILE);
+        File file = aiCodeGeneratorFacade.generateCodeAndSaveCode(1, "任务记录网站", CodeGenTypeEnum.MULTI_FILE);
         Assertions.assertNotNull(file);
     }
 

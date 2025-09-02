@@ -5,7 +5,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/yefeng_ai_code
     username: root
-    password: 031214t+
+    password: 123456
   profiles:
     active: local
   servlet:
@@ -14,7 +14,12 @@ spring:
       max-file-size: 15MB
       # 所有上传文件最大大小
       max-request-size: 50MB
-
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: 123456
+      database: 1
 # 文件上传配置
 file:
   upload:

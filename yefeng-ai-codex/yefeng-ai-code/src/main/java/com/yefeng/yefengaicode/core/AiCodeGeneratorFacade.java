@@ -1,6 +1,7 @@
 package com.yefeng.yefengaicode.core;
 
 import com.yefeng.yefengaicode.ai.AiCodeGeneratorService;
+import com.yefeng.yefengaicode.ai.AiCodeGeneratorServiceFactory;
 import com.yefeng.yefengaicode.ai.model.HtmlCodeResult;
 import com.yefeng.yefengaicode.ai.model.MultiFileCodeResult;
 import com.yefeng.yefengaicode.core.parser.CodeParserExecutor;
@@ -8,6 +9,7 @@ import com.yefeng.yefengaicode.core.saver.CodeFileSaverExecutor;
 import com.yefeng.yefengaicode.exception.BusinessException;
 import com.yefeng.yefengaicode.exception.ErrorCode;
 import com.yefeng.yefengaicode.model.enums.CodeGenTypeEnum;
+import dev.langchain4j.community.store.memory.chat.redis.RedisChatMemoryStore;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,12 @@ public class AiCodeGeneratorFacade {
     @Resource
     private AiCodeGeneratorService aiCodeGeneratorService;
 
+    @Resource
+    private  RedisChatMemoryStore redisChatMemoryStore;
+
+    @Resource
+    private AiCodeGeneratorServiceFactory aiCodeGeneratorServiceFactory;
+
     /**
      * 统一入口：根据类型生成并保存代码
      *
@@ -31,12 +39,13 @@ public class AiCodeGeneratorFacade {
      * @param codeGenTypeEnum 生成类型
      * @return 保存的目录
      */
-    public File generateCodeAndSaveCode(String userMessage, CodeGenTypeEnum codeGenTypeEnum) {
+    public File generateCodeAndSaveCode(int memoryId, String userMessage, CodeGenTypeEnum codeGenTypeEnum) {
         if (codeGenTypeEnum == null) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "请选择代码生成类型");
         }
+
         return switch (codeGenTypeEnum) {
-            case HTML -> generateAndSaveHtmlCode(userMessage);
+            case HTML -> generateAndSaveHtmlCode(memoryId, userMessage);
             case MULTI_FILE -> generateAndSaveMultiFileCode(userMessage);
             default -> {
                 String msg = "不支持的代码生成类型" + codeGenTypeEnum.getValue();
@@ -134,11 +143,12 @@ public class AiCodeGeneratorFacade {
     /**
      * 生成并保存HTML代码
      *
+     * @param memoryId 内存id
      * @param userMessage 用户提示词
      * @return 文件目录
      */
-    private File generateAndSaveHtmlCode(String userMessage) {
-        HtmlCodeResult result = aiCodeGeneratorService.generateHtmlCode(userMessage);
+    private File generateAndSaveHtmlCode(int memoryId, String userMessage) {
+        HtmlCodeResult result = aiCodeGeneratorService.generateHtmlCode(memoryId, userMessage);
         return CodeFileSaver.saveCodeHtmlCodeFile(result);
     }
 
@@ -177,13 +187,15 @@ public class AiCodeGeneratorFacade {
      * @param appId           应用id
      * @return 保存的目录
      */
-    public File generateAndSaveCode(String userMessage, CodeGenTypeEnum codeGenTypeEnum, Long appId) {
+    public File generateAndSaveCode(int memoryId, String userMessage, CodeGenTypeEnum codeGenTypeEnum, Long appId) {
         if (codeGenTypeEnum == null) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "生成类型为空");
         }
+        // 根据 appId 获取对应的 AI 服务实例
+        AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(appId);
         return switch (codeGenTypeEnum) {
             case HTML -> {
-                HtmlCodeResult result = aiCodeGeneratorService.generateHtmlCode(userMessage);
+                HtmlCodeResult result = aiCodeGeneratorService.generateHtmlCode(memoryId, userMessage);
                 yield CodeFileSaverExecutor.executeSaver(result, CodeGenTypeEnum.HTML, appId);
             }
             case MULTI_FILE -> {
@@ -208,6 +220,8 @@ public class AiCodeGeneratorFacade {
         if (codeGenTypeEnum == null) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "生成类型为空");
         }
+        // 根据 appId 获取对应的 AI 服务实例
+        AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(appId);
         return switch (codeGenTypeEnum) {
             case HTML -> {
                 Flux<String> codeStream = aiCodeGeneratorService.generateHtmlCodeStream(userMessage);
@@ -223,4 +237,6 @@ public class AiCodeGeneratorFacade {
             }
         };
     }
+
+
 }

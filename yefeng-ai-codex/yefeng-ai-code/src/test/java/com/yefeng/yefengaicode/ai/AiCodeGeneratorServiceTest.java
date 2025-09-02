@@ -24,7 +24,7 @@ class AiCodeGeneratorServiceTest {
 
     @Test
     void generateHtmlCode() {
-        HtmlCodeResult result = aiCodeGeneratorService.generateHtmlCode("做个工作记录小工具");
+        HtmlCodeResult result = aiCodeGeneratorService.generateHtmlCode(1, "做个工作记录小工具");
         Assertions.assertNotNull(result);
     }
 
@@ -48,7 +48,7 @@ class AiCodeGeneratorServiceTest {
      */
     @Test
     void generateAndSaveCode() {
-        File file = aiCodeGeneratorFacade.generateAndSaveCode("任务记录网站", CodeGenTypeEnum.MULTI_FILE, 1L);
+        File file = aiCodeGeneratorFacade.generateAndSaveCode(1, "任务记录网站", CodeGenTypeEnum.MULTI_FILE, 1L);
         Assertions.assertNotNull(file);
     }
 
@@ -66,4 +66,16 @@ class AiCodeGeneratorServiceTest {
         Assertions.assertNotNull(completeContent);
     }
 
+
+    @Test
+    void testChatMemory() {
+        HtmlCodeResult result = aiCodeGeneratorService.generateHtmlCode(1, "做个程序员鱼皮的工具网站，总代码量不超过 20 行");
+        Assertions.assertNotNull(result);
+        result = aiCodeGeneratorService.generateHtmlCode(1, "不要生成网站，告诉我你刚刚做了什么？");
+        Assertions.assertNotNull(result);
+        result = aiCodeGeneratorService.generateHtmlCode(2, "做个程序员鱼皮的工具网站，总代码量不超过 20 行");
+        Assertions.assertNotNull(result);
+        result = aiCodeGeneratorService.generateHtmlCode(2, "不要生成网站，告诉我你刚刚做了什么？");
+        Assertions.assertNotNull(result);
+    }
 }
