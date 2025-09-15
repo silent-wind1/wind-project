@@ -29,9 +29,9 @@
         <div ref="messagesContainer" class="messages-container">
           <!-- 加载更多按钮 -->
           <div v-if="hasMoreHistory" class="load-more-container">
-            <a-button 
-              :loading="loadingHistory" 
-              type="link" 
+            <a-button
+              :loading="loadingHistory"
+              type="link"
               @click="loadMoreHistory"
             >
               <template #icon>
@@ -226,6 +226,8 @@ const isAdmin = computed(() => {
   return loginUserStore.loginUser.userRole === 'admin'
 })
 
+
+
 // 应用详情相关
 const appDetailVisible = ref(false)
 
@@ -292,14 +294,14 @@ const loadChatHistory = async (loadMore = false) => {
     }
 
     const res = await listAppChatHistory(params)
-    
+
     if (res.data.code === 0 && res.data.data) {
       const historyData = res.data.data
       const historyMessages = historyData.records || []
-      
-      // 转换历史消息格式
+
+      // 转换历史消息格式（区分后端的 messageType：user / ai，不区分大小写）
       const convertedMessages: Message[] = historyMessages.map(msg => ({
-        type: msg.messageType === 'USER' ? 'user' : 'ai',
+        type: (msg.messageType || '').toLowerCase() === 'user' ? 'user' : 'ai',
         content: msg.message || '',
         createTime: msg.createTime,
       }))
@@ -317,10 +319,10 @@ const loadChatHistory = async (loadMore = false) => {
         const oldestMessage = historyMessages[historyMessages.length - 1]
         lastCreateTime.value = oldestMessage.createTime || ''
       }
-      
+
       // 判断是否还有更多历史消息
-      hasMoreHistory.value = historyData.totalRow ? 
-        (loadMore ? messages.value.length : historyMessages.length) < historyData.totalRow : 
+      hasMoreHistory.value = historyData.totalRow ?
+        (loadMore ? messages.value.length : historyMessages.length) < historyData.totalRow :
         historyMessages.length === 10
     } else {
       message.error('获取对话历史失败：' + res.data.message)
@@ -347,12 +349,12 @@ const sendInitialMessage = async (prompt: string) => {
   })
 
   // 添加AI消息占位符
-  const aiMessageIndex = messages.value.length
   messages.value.push({
     type: 'ai',
     content: '',
     loading: true,
   })
+  const aiMessageIndex = messages.value.length - 1
 
   await nextTick()
   scrollToBottom()
@@ -378,12 +380,12 @@ const sendMessage = async () => {
   })
 
   // 添加AI消息占位符
-  const aiMessageIndex = messages.value.length
   messages.value.push({
     type: 'ai',
     content: '',
     loading: true,
   })
+  const aiMessageIndex = messages.value.length - 1
 
   await nextTick()
   scrollToBottom()
@@ -429,8 +431,11 @@ const generateCode = async (userMessage: string, aiMessageIndex: number) => {
         // 拼接内容
         if (content !== undefined && content !== null) {
           fullContent += content
-          messages.value[aiMessageIndex].content = fullContent
-          messages.value[aiMessageIndex].loading = false
+          // 确保只更新AI消息的内容，不影响用户消息
+          if (messages.value[aiMessageIndex] && messages.value[aiMessageIndex].type === 'ai') {
+            messages.value[aiMessageIndex].content = fullContent
+            messages.value[aiMessageIndex].loading = false
+          }
           scrollToBottom()
         }
       } catch (error) {
@@ -693,6 +698,10 @@ onUnmounted(() => {
   color: #1a1a1a;
   padding: 8px 12px;
 }
+
+
+
+
 
 .message-avatar {
   flex-shrink: 0;
