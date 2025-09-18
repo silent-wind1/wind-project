@@ -53,6 +53,11 @@ public class ExcelListener implements ReadListener<App> {
         }
     }
 
+    /**
+     * 数据验证
+     * @param app 应用
+     * @return 数据不存在返回 true, 反之 false
+     */
     private boolean validateData(App app) {
         // 调用mapper方法来检查数据库中是否已存在该数据
         long count = appService.countByAppName(app.getAppName());
