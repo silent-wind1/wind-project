@@ -44,6 +44,10 @@ public class ExcelListener implements ReadListener<App> {
         }
     }
 
+    /**
+     * 读取完所有数据后的处理
+     * @param analysisContext 分析上下文
+     */
     @Override
     public void doAfterAllAnalysed(AnalysisContext analysisContext) {
         // 如果还有未处理的数据，进行处理
@@ -70,7 +74,9 @@ public class ExcelListener implements ReadListener<App> {
         return false;
     }
 
-    // 处理一批数据的方法，重试次数超过 3，进行异常处理
+    /**
+     * 处理一批数据的方法，重试次数超过 3，进行异常处理
+     */
     private void processBatch() {
         int retryCount = 0;
         // 重试逻辑
@@ -92,7 +98,11 @@ public class ExcelListener implements ReadListener<App> {
         }
     }
 
-    // 记录错误日志的方法
+    /**
+     * 记录错误日志的方法
+     * @param e 异常对象
+     * @param appList 未保存的记录列表
+     */
     private void logError(Exception e, List<App> appList) {
         // 在这里实现错误日志记录逻辑
         // 可以记录异常信息和导致失败的数据
