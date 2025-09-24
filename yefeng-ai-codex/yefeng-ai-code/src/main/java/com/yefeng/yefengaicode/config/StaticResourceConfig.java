@@ -26,7 +26,7 @@ public class StaticResourceConfig implements WebMvcConfigurer {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         log.info("=== SpringBoot 3 静态资源配置 ===");
         log.info("上传文件根目录: {}", uploadBasePath);
-        
+
         try {
             // 验证目录是否存在
             Path basePath = Paths.get(uploadBasePath);
@@ -38,17 +38,12 @@ public class StaticResourceConfig implements WebMvcConfigurer {
             }
 
             // 方式1: 映射到整个uploads目录，使用精确匹配避免斜杠问题
-            registry.addResourceHandler("/uploads/**")
-                    .addResourceLocations("file:" + uploadBasePath + "/")
-                    .setCachePeriod(3600)
-                    .resourceChain(true)
-                    .addResolver(new PathResourceResolver());
+            registry.addResourceHandler("/uploads/**").addResourceLocations("file:" + uploadBasePath + "/").setCachePeriod(3600).resourceChain(true).addResolver(new PathResourceResolver());
             log.info("✅ 配置uploads映射: /uploads/** -> {}", uploadBasePath);
 
         } catch (Exception e) {
             log.error("❌ 静态资源配置失败", e);
         }
-        
         log.info("=== 静态资源配置完成 ===");
     }
 }
